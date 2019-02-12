@@ -1,0 +1,12 @@
+#!/bin/bash -eu
+
+# Pass the path to an initSh script, and this will remove any orphaned instance
+# directories and all temporary files. Only run if no one is using the specific
+# initSh project. Otherwise will interrupt execution.
+
+runScript=$1   
+
+binDir=$(dirname $(readlink -f $0))
+. $binDir/lib.sh
+
+nukeAllInstances

@@ -1,0 +1,13 @@
+#!/bin/bash -eu
+
+runScript=$1
+shift
+
+shebangDir=$(dirname $(readlink -f $0))
+initSh=$shebangDir/initSh
+
+: ${PYTHONPATH:=""}
+export PYTHONPATH
+
+export runShell=python
+initSh $runScript "$@"

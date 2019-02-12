@@ -1,0 +1,48 @@
+#!/bin/bash -eu
+
+# Parses an eRuby template with command line variable assignments
+
+erbFile=$1
+shift
+
+cliAssigns=""
+while [[ $# -gt 0 ]] ; do
+    cliAssigns="$cliAssigns $1"
+    shift
+done
+
+# Command line assignments not supported in <v2.2 of Ruby, so we handle by
+# writing to a temporary Ruby module with the assignments. Note that this
+# currently does not support white space in variable assignments.
+
+export rubyCliArgMod=$(mktemp --suffix=.rb)
+function cleanupArgMod() {
+    if [[ -e $rubyCliArgMod ]] ; then
+	rm $rubyCliArgMod
+    fi
+}
+trap cleanupArgMod EXIT
+
+# All CLI vars assigned to string as value type
+for varAssign in $cliAssigns ; do
+    varName=$(echo "$varAssign" | cut -d "=" -f 1)
+    varVal=$(echo "$varAssign" | cut -d "=" -f 2)
+    echo "@${varName} = '$varVal'" >> $rubyCliArgMod
+done
+
+function dropShebang() {
+    tail -n +2
+}
+
+function runErbWithArgs() {
+    erbFile=$1
+    cat $erbFile | dropShebang \
+	| erb -r $rubyCliArgMod
+}
+
+export rubyCliArgMod
+export -f runErbWithArgs dropShebang
+
+export runShell=runErbWithArgs
+initSh $erbFile
+

@@ -1,0 +1,13 @@
+#!/bin/bash -eu
+
+runScript=$1
+shift
+
+shebangDir=$(dirname $(readlink -f $0))
+initSh=$shebangDir/initSh
+
+: ${R_SRC_PATH:=""}
+export R_SRC_PATH
+
+export runShell=Rscript
+initSh $runScript "$@"

@@ -1,0 +1,22 @@
+#!/bin/bash -eu
+
+# Even though this variable isn't used in this file, the shell libraries
+# depend on runScript being set, so don't delete this line.
+runScript=$1   
+
+binDir=$(dirname $(readlink -f $0))
+. $binDir/lib.sh
+
+# Default cleanup both on success and failure, but if INIT_SH_DEBUG is set,
+# then keep temp files on failure for traceability. 
+trap cleanupLocalProject EXIT
+
+setupLocalProject
+
+: ${runShell:=""}
+if [[ ! -z "$runShell" ]] ; then
+    shellCmd="$runShell"
+    unset runShell
+fi
+
+$shellCmd "$@"

@@ -1,0 +1,25 @@
+#!/bin/bash -eu
+
+runScript=$1
+shift; hsArgs=$@
+
+shebangDir=$(dirname $(readlink -f $0))
+initSh=$shebangDir/initSh
+
+: ${INIT_SH_HASKELL_PATH:=""}
+export INIT_SH_HASKELL_PATH
+
+# Unlike python, ghc offers no env variables search path, and the path
+# variable may be modified in subsequently initSh setup. So, Binding runShell
+# to a string with the haskell path will not work. Instead use a shell function
+# that references the path variable at invoke time, and export it to be 
+# called at initSh
+function runHaskellWInitSh() {
+    runhaskell -i$INIT_SH_HASKELL_PATH "$@"
+}
+
+export -f runHaskellWInitSh
+
+export runShell=runHaskellWInitSh
+initSh $runScript "$@"
+
