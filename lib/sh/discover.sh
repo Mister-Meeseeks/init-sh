@@ -32,6 +32,11 @@ function raiseNoInitDiscovered() {
     exit 1
 }
 
+function blueprintProject() {
+    addLocalProject
+    sourceLocalProjectInit
+}
+
 function addLocalProject() {
     importShellDir $(discoverProjectDir) $localProjectNamespace
 }

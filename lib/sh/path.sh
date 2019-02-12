@@ -44,6 +44,11 @@ function getParentProjectDir() {
     echo $(discoverProjectDir)/../../
 }
 
+function prepareFreshView() {
+    resetViews
+    setPathForProject
+}
+
 function setPathForProject() {
     if [[ $doesProjectHavePrecedence -gt 0 ]] ; then
 	export PATH=$(getProjectPaths):$PATH

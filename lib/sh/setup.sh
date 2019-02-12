@@ -5,14 +5,8 @@ function setupLocalProject() {
 }
 
 function initializeLocalProject() {
-    resetLocalProject
-    setPathForProject
-    addLocalProject
-    sourceLocalProjectInit
-}
-
-function resetLocalProject() {
-    resetViews
+    prepareFreshView
+    blueprintProject
 }
 
 function runForInitShCall() {
