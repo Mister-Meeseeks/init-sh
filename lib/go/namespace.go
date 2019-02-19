@@ -18,6 +18,18 @@ func (r RootImportNamer) nameImportEntry (path string) string {
 	return r.wrapped.nameImportEntry(subPath)
 }
 
+type DirectoryDivNamer struct  {
+	baseNamer ImportNamer 
+	nameDiv string
+}
+
+func (n DirectoryDivNamer) nameImportEntry (path string) string {
+	dir := filepath.Dir(path)
+	base := filepath.Base(path)
+	nested := strings.Replace(dir, "/", n.nameDiv, -1)
+	return nested + n.nameDiv + n.baseNamer.nameImportEntry(base)
+}
+
 type BaseImportNamer struct { }
 
 func (b BaseImportNamer) nameImportEntry (path string) string {
