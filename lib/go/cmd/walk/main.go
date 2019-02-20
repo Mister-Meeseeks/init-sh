@@ -15,4 +15,3 @@ func main() {
 		fmt.Printf("Resolve symlink %q -> %q\n", path, canon)
 	}
 }
-
