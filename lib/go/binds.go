@@ -4,33 +4,49 @@ package initsh
 import "errors"
 import "os"
 import "path/filepath"
+import "strings"
+import "io/ioutil"
 
-func linkTo (tgtPath string, linkPath string) error {
-	s, err := os.Stat(linkPath)
+type idempotentBinder interface {
+	makeFresh (path string) error
+	assertMatch (path string, stat os.FileInfo) error
+}
+
+func bindTo (b idempotentBinder, path string) error {
+	s, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		return os.Symlink(tgtPath, linkPath)
+		return b.makeFresh(path)
 	} else if err != nil {
 		return err
 	} else {
-		return assertLinkTo(s, linkPath, tgtPath)
+		return b.assertMatch(path, s)
 	}
 }
 
-func assertLinkTo (stat os.FileInfo, linkPath string, tgtPath string) error {
+type linkBinder struct {
+	tgtPath string
+}
+
+func (b linkBinder) makeFresh (path string) error {
+	return os.Symlink(path, b.tgtPath)
+}
+
+func (b linkBinder) assertMatch (path string, stat os.FileInfo) error {
 	if (isSymLink(stat.Mode())) {
-		current, err := filepath.EvalSymlinks(linkPath)
+		prePath, err := filepath.EvalSymlinks(path)
 		if err != nil {
 			return err
 		}
-		if current != tgtPath {
-			return raiseLinkConflict(linkPath, tgtPath, current)
+		if prePath != b.tgtPath {
+			return raiseLinkConflict(path, b.tgtPath, prePath)
 		}
 		return nil
 	} else {
-		return errors.New("Cannot symLink at " + linkPath +
+		return errors.New("Cannot symLink at " + path +
 			". Previous non-link file exists.")
 	}
 }
+
 
 func raiseLinkConflict (link string, tgt string, pre string) error {
 	msg := "initSh Error: Name conflict when creating link=" +
@@ -40,13 +56,72 @@ func raiseLinkConflict (link string, tgt string, pre string) error {
 	return errors.New(msg)
 }
 
-func mkdir (path string) error {
-	s, err := os.Stat(path)
-	if !(s.IsDir()) {
-		return errors.New("File exists at directory targer: " + path)
-	} else if os.IsNotExist(err) {
-		return os.Mkdir(path, 0755)
-	} else {
+type readBinder struct {
+	tgtPath string
+	readCmd string
+}
+
+func (b readBinder) makeFresh (path string) error {
+	err := b.assertTargetSanit(path)
+	if (err != nil) {
 		return err
 	}
+	return ioutil.WriteFile(path, b.fmtContent(), 0755)
+}
+
+func (b readBinder) assertTargetSanit (path string) error {
+	if (strings.ContainsAny(b.tgtPath, "'")) {
+		return errors.New("Cannot read bind a target path with " +
+			"quotations: " + b.tgtPath)
+	}
+	return nil
+}
+
+func (b readBinder) fmtContent() []byte {
+	content := b.fmtStrContent()
+	return []byte(content)
+}
+
+func (b readBinder) fmtStrContent() string {
+	lines := []string{"#!/bin/bash -eu", b.readCmd + " '" + b.tgtPath + "'"}
+	return strings.Join(lines, "\n")
+}
+
+func (b readBinder)  assertMatch (path string, stat os.FileInfo) error {
+	if (stat.IsDir()) {
+		return errors.New("Cannot create a wrapper at " + path +
+			". Previous directory exists at path")
+	} else if (isSymLink(stat.Mode())) {
+		return errors.New("Cannot create a wrapper at " + path +
+			". Previous symLink exists at path")
+	} else {
+		return b.assertFileMatch(path)
+	}
+}
+
+func (b readBinder) assertFileMatch (path string) error {
+	byteContent, err := ioutil.ReadFile(path)
+	if (err != nil) {
+		return err
+	}
+	content := string(byteContent)
+	if (content != b.fmtStrContent()) {
+		return errors.New("Read wrapper previosuly exists at " + path +
+			"with different target than " + b.tgtPath)
+	}
+	return nil
+}
+
+type dirBinder struct { }
+
+
+func (b dirBinder) makeFresh (path string) error {
+	return os.Mkdir(path, 0755)
+}
+
+func (b dirBinder) assertFresh (path string, stat os.FileInfo) error {
+	if !(stat.IsDir()) {
+		return errors.New("File exists at directory targer: " + path)
+	}
+	return nil
 }
