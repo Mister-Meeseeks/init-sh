@@ -2,7 +2,7 @@
 package initsh
 
 import "os"
-import "strings"
+import "path/filepath"
 
 type ExecFilter struct { }
 type ShellLibFilter struct { }
@@ -26,18 +26,9 @@ func (f GzDataFilter) doIngest (path string, info os.FileInfo) (bool, error) {
 }
 
 func hasShellExt (path string) bool {
-	return parseFileExt(path) == "sh"
+	return filepath.Ext(path) == ".sh"
 }
 
 func hasGzipExt (path string) bool {
-	return parseFileExt(path) == "gz"
-}
-
-func parseFileExt (path string) string {
-	fields := strings.Split(path, ".")
-	if len(fields) < 2 {
-		return ""
-	} else {
-		return fields[len(fields)-1]
-	}
+	return filepath.Ext(path) == ".gz"
 }

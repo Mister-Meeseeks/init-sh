@@ -1,29 +1,31 @@
 
 package initsh
 
+import "strings"
+
 type cargoDeliverer struct {
 	bucket cargoBucketer
 	slotter cargoSlotter
 }
 
-type cargoDest struct {
+type cargoAddress struct {
 	bucket string
 	slot string
 }
 
-func pathToCargoDest (dest cargoDest) string {
+func pathToCargoAddress (dest cargoAddress) string {
 	return dest.bucket + "/" + dest.slot
 }
 
 type cargoSlotter interface {
-	slotCargo (dest cargoDest, originPath string) error
+	slotCargo (dest cargoAddress, originPath string) error
 }
 
 type cargoBucketer interface {
 	bucketCargo (bucket string) error
 }
 
-func (d *cargoDeliverer) deliver (dest cargoDest, originPath string) error {
+func (d cargoDeliverer) deliver (dest cargoAddress, originPath string) error {
 	err := d.bucket.bucketCargo(dest.bucket)
 	if err != nil {
 		return err
@@ -48,8 +50,21 @@ type binderSlotter struct {
 	binder idempotentBinder
 }
 
-func (s binderSlotter) slotCargo (dest cargoDest, originPath string) error {
-	return bindTo(s.binder, pathToCargoDest(dest))
+func (s binderSlotter) slotCargo (dest cargoAddress, originPath string) error {
+	return bindTo(s.binder, pathToCargoAddress(dest))
+}
+
+type subcmdSlotter struct {
+	inTreeDir cargoSlotter
+}
+
+func (s subcmdSlotter) slotCargo (dest cargoAddress, originPath string) error {
+	fileDest := cargoAddress{toSubcmdTreeDir(dest.bucket), dest.slot}
+	return s.slotCargo(fileDest, originPath)
+}
+
+func toSubcmdTreeDir (entryPath string) string {
+	return strings.TrimRight(entryPath, "/") + "-subcmd/"
 }
 
 func makeSymLinkSlotter() cargoSlotter {
