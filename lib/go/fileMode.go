@@ -15,3 +15,10 @@ func isExecFile (info os.FileInfo) bool {
 		!isSymLink(info.Mode()) &&
 		isExecPerm(info.Mode())
 }
+
+func isNonExecFile (info os.FileInfo) bool {
+	return !info.IsDir() &&
+		!isSymLink(info.Mode()) &&
+		!isExecPerm(info.Mode())	
+}
+

@@ -21,16 +21,16 @@ func (p IngestMultiplexer) ingestPath (path string, info os.FileInfo) error {
 	return nil
 }
 
-type IngestAcceptor interface {
+type IngestFilter interface {
 	doIngest(path string, info os.FileInfo) (bool, error)
 }
 
-type IngestFilter struct {
-	acceptor IngestAcceptor
+type IngestConditional struct {
+	acceptor IngestFilter
 	wrapped PathIngester
 }
 
-func (p IngestFilter) ingestPath (path string, info os.FileInfo) error {
+func (p IngestConditional) ingestPath (path string, info os.FileInfo) error {
 	isAccept, err := p.acceptor.doIngest(path, info)
 	if err != nil {
 		return err
