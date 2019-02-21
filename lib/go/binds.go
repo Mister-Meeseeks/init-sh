@@ -28,11 +28,15 @@ type linkBinder struct {
 	tgtPath string
 }
 
-func (b *linkBinder) makeFresh (path string) error {
+func (b linkBinder) makeFresh (path string) error {
+	err := prepareDir(path)
+	if (err != nil) {
+		return err
+	}
 	return os.Symlink(path, b.tgtPath)
 }
 
-func (b *linkBinder) assertMatch (path string, stat os.FileInfo) error {
+func (b linkBinder) assertMatch (path string, stat os.FileInfo) error {
 	if (isSymLink(stat.Mode())) {
 		prePath, err := filepath.EvalSymlinks(path)
 		if err != nil {
@@ -66,12 +70,7 @@ func (b fileContentBinder) makeFresh (path string) error {
 	if err != nil {
 		return err
 	}
-	return writeContent(path)
-}
-
-func (b fileContentBinder) prepareDir (path string) error {
-	dirPath := filepath.Dirname(path)
-	bindTo(dirBinder{}, dirPath)
+	return b.writeContent(path)
 }
 
 func (b fileContentBinder) writeContent (path string) error {
@@ -130,3 +129,7 @@ func (b dirBinder) assertMatch (path string, stat os.FileInfo) error {
 	return nil
 }
 
+func prepareDir (path string) error {
+	dirPath := filepath.Dir(path)
+	return bindTo(dirBinder{}, dirPath)
+}

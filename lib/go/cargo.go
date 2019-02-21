@@ -11,6 +11,10 @@ type cargoDest struct {
 	slot string
 }
 
+func pathToCargoDest (dest cargoDest) string {
+	return dest.bucket + "/" + dest.slot
+}
+
 type cargoSlotter interface {
 	slotCargo (dest cargoDest, originPath string) error
 }
@@ -40,3 +44,22 @@ func (b bucketerSubcmd) bucketCargo (bucket string) error {
 	return bindTo(makeSubcmdBinder(), bucket)
 }
 
+type binderSlotter struct {
+	binder idempotentBinder
+}
+
+func (s binderSlotter) slotCargo (dest cargoDest, originPath string) error {
+	return bindTo(s.binder, pathToCargoDest(dest))
+}
+
+func makeSymLinkSlotter() cargoSlotter {
+	return binderSlotter{linkBinder{}}
+}
+
+func makeDataSlotter (path string) cargoSlotter {
+	return binderSlotter{makeReadBinder(path, "cat")}
+}
+
+func makeGzDataSlotter (path string) cargoSlotter {
+	return binderSlotter{makeReadBinder(path, "zcat")}
+}
