@@ -62,6 +62,19 @@ type fileContentBinder struct {
 }
 
 func (b fileContentBinder) makeFresh (path string) error {
+	err := prepareDir(path)
+	if err != nil {
+		return err
+	}
+	return writeContent(path)
+}
+
+func (b fileContentBinder) prepareDir (path string) error {
+	dirPath := filepath.Dirname(path)
+	bindTo(dirBinder{}, dirPath)
+}
+
+func (b fileContentBinder) writeContent (path string) error {
 	return ioutil.WriteFile(path, b.fmtContent(), 0755)
 }
 
