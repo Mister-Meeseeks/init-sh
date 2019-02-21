@@ -21,26 +21,6 @@ func (p IngestMultiplexer) ingestPath (path string, info os.FileInfo) error {
 	return nil
 }
 
-type IngestFilter interface {
-	doIngest(path string, info os.FileInfo) (bool, error)
-}
-
-type IngestConditional struct {
-	acceptor IngestFilter
-	wrapped PathIngester
-}
-
-func (p IngestConditional) ingestPath (path string, info os.FileInfo) error {
-	isAccept, err := p.acceptor.doIngest(path, info)
-	if err != nil {
-		return err
-	} else if (isAccept) {
-		return p.wrapped.ingestPath(path, info)
-	} else {
-		return nil
-	}
-}
-
 type PathPrinter struct { }
 
 func (p PathPrinter) ingestPath (path string, info os.FileInfo) error {

@@ -4,24 +4,28 @@ package initsh
 import "os"
 import "path/filepath"
 
+type ImportFilter interface {
+	canImport(path string, info os.FileInfo) (bool, error)
+}
+
 type ExecFilter struct { }
 type ShellLibFilter struct { }
 type DataItemFilter struct { }
 type GzDataFilter struct { }
 
-func (f ExecFilter) doIngest (path string, info os.FileInfo) (bool, error) {
+func (f ExecFilter) canImport (path string, info os.FileInfo) (bool, error) {
 	return isExecFile(info), nil
 }
 
-func (f ShellLibFilter) doIngest (path string, info os.FileInfo) (bool, error) {
+func (f ShellLibFilter) canImport (path string, info os.FileInfo) (bool, error) {
 	return isNonExecFile(info) && hasShellExt(path), nil
 }
 
-func (f DataItemFilter) doIngest (path string, info os.FileInfo) (bool, error) {
+func (f DataItemFilter) canImport (path string, info os.FileInfo) (bool, error) {
 	return isNonExecFile(info) && !hasGzipExt(path), nil
 }
 
-func (f GzDataFilter) doIngest (path string, info os.FileInfo) (bool, error) {
+func (f GzDataFilter) canImport (path string, info os.FileInfo) (bool, error) {
 	return isNonExecFile(info) && hasGzipExt(path), nil
 }
 
