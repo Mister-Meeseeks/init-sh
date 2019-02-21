@@ -26,3 +26,17 @@ func (d *cargoDeliverer) deliver (dest cargoDest, originPath string) error {
 	}
 	return d.slotter.slotCargo(dest, originPath)
 }
+
+type bucketerPathMode struct { }
+
+func (b bucketerPathMode) bucketCargo (bucket string) error {
+	db := dirBinder{}
+	return bindTo(db, bucket)
+}
+
+type bucketerSubcmd struct { }
+
+func (b bucketerSubcmd) bucketCargo (bucket string) error {
+	return bindTo(makeSubcmdBinder(), bucket)
+}
+

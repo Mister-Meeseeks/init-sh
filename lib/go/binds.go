@@ -5,6 +5,7 @@ import "errors"
 import "os"
 import "path/filepath"
 import "strings"
+import "bytes"
 import "io/ioutil"
 
 type idempotentBinder interface {
@@ -27,11 +28,11 @@ type linkBinder struct {
 	tgtPath string
 }
 
-func (b linkBinder) makeFresh (path string) error {
+func (b *linkBinder) makeFresh (path string) error {
 	return os.Symlink(path, b.tgtPath)
 }
 
-func (b linkBinder) assertMatch (path string, stat os.FileInfo) error {
+func (b *linkBinder) assertMatch (path string, stat os.FileInfo) error {
 	if (isSymLink(stat.Mode())) {
 		prePath, err := filepath.EvalSymlinks(path)
 		if err != nil {
@@ -56,72 +57,63 @@ func raiseLinkConflict (link string, tgt string, pre string) error {
 	return errors.New(msg)
 }
 
-type readBinder struct {
-	tgtPath string
-	readCmd string
+type fileContentBinder struct {
+	contentLines []string
 }
 
-func (b readBinder) makeFresh (path string) error {
-	err := b.assertTargetSanit(path)
-	if (err != nil) {
-		return err
-	}
+func (b fileContentBinder) makeFresh (path string) error {
 	return ioutil.WriteFile(path, b.fmtContent(), 0755)
 }
 
-func (b readBinder) assertTargetSanit (path string) error {
-	if (strings.ContainsAny(b.tgtPath, "'")) {
-		return errors.New("Cannot read bind a target path with " +
-			"quotations: " + b.tgtPath)
-	}
-	return nil
-}
-
-func (b readBinder) fmtContent() []byte {
-	content := b.fmtStrContent()
+func (b fileContentBinder) fmtContent() []byte {
+	content := strings.Join(b.contentLines, "\n")
 	return []byte(content)
 }
 
-func (b readBinder) fmtStrContent() string {
-	lines := []string{"#!/bin/bash -eu", b.readCmd + " '" + b.tgtPath + "'"}
-	return strings.Join(lines, "\n")
-}
-
-func (b readBinder)  assertMatch (path string, stat os.FileInfo) error {
+func (b fileContentBinder) assertMatch (path string, stat os.FileInfo) error {
 	if (stat.IsDir()) {
-		return errors.New("Cannot create a wrapper at " + path +
+		return errors.New("Cannot create a file at " + path +
 			". Previous directory exists at path")
 	} else if (isSymLink(stat.Mode())) {
-		return errors.New("Cannot create a wrapper at " + path +
+		return errors.New("Cannot create a file at " + path +
 			". Previous symLink exists at path")
 	} else {
 		return b.assertFileMatch(path)
 	}
 }
 
-func (b readBinder) assertFileMatch (path string) error {
+func (b fileContentBinder) assertFileMatch (path string) error {
 	byteContent, err := ioutil.ReadFile(path)
 	if (err != nil) {
 		return err
 	}
-	content := string(byteContent)
-	if (content != b.fmtStrContent()) {
+	if (!(bytes.Equal(byteContent, b.fmtContent()))) {
 		return errors.New("Read wrapper previosuly exists at " + path +
-			"with different target than " + b.tgtPath)
+			"with different content")
 	}
 	return nil
 }
 
-type dirBinder struct { }
+func makeReadBinder (tgtPath string, readCmd string) fileContentBinder {
+	lines := []string{"#!/bin/bash -eu", readCmd + " '" + tgtPath + "'"}
+	return fileContentBinder{lines}
+}
 
+func makeSubcmdBinder() fileContentBinder {
+	lines := []string{"#!/usr/bin/env subcmd"}
+	return fileContentBinder{lines}
+}
+
+type dirBinder struct { }
 
 func (b dirBinder) makeFresh (path string) error {
 	return os.Mkdir(path, 0755)
 }
 
-func (b dirBinder) assertFresh (path string, stat os.FileInfo) error {
+func (b dirBinder) assertMatch (path string, stat os.FileInfo) error {
 	if !(stat.IsDir()) {
 		return errors.New("File exists at directory targer: " + path)
 	}
 	return nil
 }
+
