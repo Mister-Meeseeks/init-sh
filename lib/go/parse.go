@@ -4,12 +4,13 @@ package initsh
 import "strings"
 import "errors"
 
-func parseImportStr (cmd string, dir ImportDirector) (*PathIngester, error) {
+func parseImportStr (cmd string, dir ImportDirector) (*PathIngester, string, error) {
 	lex, err := lexImportStr(cmd)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	return parseImportLex(lex, dir)
+	ing, err := parseImportLex(lex, dir)
+	return ing, lex.importPath, err
 }
 
 type importCmdLex struct {
