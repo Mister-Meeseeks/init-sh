@@ -8,16 +8,21 @@ type AddressTranslator interface {
 	translate (origin cargoAddress) cargoAddress
 }
 
-type StackedTranslators struct {
+type StackedTranslator struct {
 	pipeline []AddressTranslator
 }
 
-func (t StackedTranslators) translate (origin cargoAddress) cargoAddress {
+func (t StackedTranslator) translate (origin cargoAddress) cargoAddress {
 	result := origin
 	for _, trans := range t.pipeline {
 		result = trans.translate(result)
 	}
 	return result
+}
+
+func stackTrans (x AddressTranslator, y AddressTranslator) AddressTranslator {
+	transs := []AddressTranslator{x, y}
+	return StackedTranslator{transs}
 }
 
 type DropExtTranslator struct { }

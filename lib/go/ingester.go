@@ -21,6 +21,11 @@ func (p IngestMultiplexer) ingestPath (path string, info os.FileInfo) error {
 	return nil
 }
 
+func mergeIngesters (x PathIngester, y PathIngester) PathIngester {
+	subs := []PathIngester{x, y}
+	return IngestMultiplexer{subs}
+}
+
 type PathPrinter struct { }
 
 func (p PathPrinter) ingestPath (path string, info os.FileInfo) error {

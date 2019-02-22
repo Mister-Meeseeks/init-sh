@@ -67,14 +67,23 @@ func toSubcmdTreeDir (entryPath string) string {
 	return strings.TrimRight(entryPath, "/") + "-subcmd/"
 }
 
-func makeSymLinkSlotter() cargoSlotter {
-	return binderSlotter{linkBinder{}}
+
+type symLinkSlotter struct { }
+type dataSlotter struct { }
+type gzDataSlotter struct { }
+
+func (s symLinkSlotter) slotCargo (dest cargoAddress, originPath string) error {
+	return bindCargo(linkBinder{originPath}, dest)
 }
 
-func makeDataSlotter (path string) cargoSlotter {
-	return binderSlotter{makeReadBinder(path, "cat")}
+func (s dataSlotter) slotCargo (dest cargoAddress, originPath string) error {
+	return bindCargo(makeReadBinder(originPath, "cat"), dest)
 }
 
-func makeGzDataSlotter (path string) cargoSlotter {
-	return binderSlotter{makeReadBinder(path, "zcat")}
+func (s gzDataSlotter) slotCargo (dest cargoAddress, originPath string) error {
+	return bindCargo(makeReadBinder(originPath, "zcat"), dest)
+}
+
+func bindCargo (binder idempotentBinder, dest cargoAddress) error {
+	return  bindTo(binder, pathToCargoAddress(dest))
 }

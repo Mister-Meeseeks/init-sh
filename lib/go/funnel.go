@@ -6,9 +6,9 @@ import "strings"
 import "path/filepath"
 
 type ImportFunnel struct {
+	tester ImportFilter
 	translator AddressTranslator
 	shipper cargoDeliverer
-	tester ImportFilter
 	importRoot string
 }
 
