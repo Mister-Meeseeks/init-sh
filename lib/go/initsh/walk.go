@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 )
 
-func walkThru (importArg string, dir ImportDirector) error {
+func WalkThru (importArg string, dir ImportDirector) error {
 	ing, root, err := parseImportStr(importArg, dir)
 	if (err != nil) {
 		return err

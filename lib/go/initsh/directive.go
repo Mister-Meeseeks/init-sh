@@ -16,6 +16,10 @@ type importDirector struct {
 	div string
 }
 
+func MakeImporter (binPath string, libPath string, div string) ImportDirector {
+	return importDirector{binPath, libPath, div}
+}
+
 func (d importDirector) importShell (path string, namespace *string) PathIngester {
 	ex := ImportFunnel{ExecFilter{}, d.flatBinTrans(namespace),
 		d.linkPathShipper(), path}

@@ -3,3 +3,4 @@ tmp*
 *.pyc
 .initSh
 *.lock
+.goto/

@@ -9,9 +9,9 @@ func main() {
 	libDir := os.Args[2]
 	directs := os.Args[3:]
 
-	importer := initsh.importDirector{binDir, libDir, "::"}
+	importer := initsh.MakeImporter(binDir, libDir, "::")
 	for _, directive :=  range directs {
-		err := initsh.walkThru(directive, importer)
+		err := initsh.WalkThru(directive, importer)
 		if err != nil {
 			log.Fatal("Error on parse=" + directive, err)
 		}
