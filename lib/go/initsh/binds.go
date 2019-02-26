@@ -128,7 +128,7 @@ func makeSubcmdBinder() fileContentBinder {
 type dirBinder struct { }
 
 func (b dirBinder) makeFresh (path string) error {
-	return os.Mkdir(path, 0755)
+	return os.MkdirAll(path, 0755)
 }
 
 func (b dirBinder) assertMatch (path string, stat os.FileInfo) error {

@@ -3,6 +3,7 @@ package initsh
 
 import "strings"
 import "path/filepath"
+import "fmt"
 
 type AddressTranslator interface {
 	translate (origin cargoAddress) cargoAddress
@@ -39,9 +40,21 @@ type FlattenTranslator struct {
 	div string
 }
 
+type NestedTranslator struct {
+	origDiv string
+	div string
+}
+
 func (t FlattenTranslator) translate (origin cargoAddress) cargoAddress {
 	fields := strings.Split(origin.slot, t.div)
 	return cargoAddress{origin.bucket, fields[len(fields)-1]}
+}
+
+func (t NestedTranslator) translate (origin cargoAddress) cargoAddress {
+	fields := strings.Split(origin.slot, t.origDiv)
+	slot := strings.Join(fields, t.div)
+	cleaned := strings.TrimPrefix(slot, t.div)
+	return cargoAddress{origin.bucket, cleaned}
 }
 
 type SubcmdTranslator struct {
@@ -62,6 +75,7 @@ type NamespaceTranslator struct {
 }
 
 func (p NamespaceTranslator) translate (origin cargoAddress) cargoAddress {
+	fmt.Println("Hello")
 	slot := p.namespace + p.div + origin.slot
 	return cargoAddress{p.importDir, slot}
 }

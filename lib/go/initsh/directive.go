@@ -29,9 +29,9 @@ func (d importDirector) importShell (path string, namespace *string) PathIngeste
 }
 
 func (d importDirector) importNested (path string, namespace *string) PathIngester {
-	ex := ImportFunnel{ExecFilter{}, d.flatBinTrans(namespace),
+	ex := ImportFunnel{ExecFilter{}, d.nestBinTrans(namespace),
 		d.linkPathShipper(), path}
-	lib := ImportFunnel{ShellLibFilter{}, d.baseLibTrans(namespace),
+	lib := ImportFunnel{ShellLibFilter{}, d.nestLibTrans(namespace),
 		d.linkPathShipper(), path}
 	return mergeIngesters(ex, lib)	
 }
@@ -45,9 +45,9 @@ func (d importDirector) importData (path string, namespace *string) PathIngester
 }
 
 func (d importDirector) importNestData (path string, namespace *string) PathIngester {
-	ex := ImportFunnel{DataItemFilter{}, d.baseBinTrans(namespace),
+	ex := ImportFunnel{DataItemFilter{}, d.nestDataTrans(namespace),
 		d.dataShipper(), path}
-	lib := ImportFunnel{GzDataFilter{}, d.dropBinTrans(namespace),
+	lib := ImportFunnel{GzDataFilter{}, d.nestDataTrans(namespace),
 		d.gzDataShipper(), path}
 	return mergeIngesters(ex, lib)
 }
@@ -86,12 +86,24 @@ func (d importDirector) flatBinTrans (namespace *string) AddressTranslator {
 	return stackTrans(FlattenTranslator{"/"}, d.dropBinTrans(namespace))
 }
 
+func (d importDirector) nestBinTrans (namespace *string) AddressTranslator {
+	return stackTrans(NestedTranslator{"/", d.div}, d.dropBinTrans(namespace))
+}
+
+func (d importDirector) nestDataTrans (namespace *string) AddressTranslator {
+	return stackTrans(NestedTranslator{"/", d.div}, d.baseBinTrans(namespace))
+}
+
 func (d importDirector) flatUndropBinTrans (namespace *string) AddressTranslator {
 	return stackTrans(FlattenTranslator{"/"}, d.baseBinTrans(namespace))
 }
 
 func (d importDirector) flatLibTrans (namespace *string) AddressTranslator {
 	return stackTrans(FlattenTranslator{"/"}, d.baseLibTrans(namespace))
+}
+
+func (d importDirector) nestLibTrans (namespace *string) AddressTranslator {
+	return stackTrans(NestedTranslator{"/", d.div}, d.baseLibTrans(namespace))
 }
 
 func (d importDirector) dropBinTrans (namespace *string) AddressTranslator {
