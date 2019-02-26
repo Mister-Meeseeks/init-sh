@@ -1,13 +1,13 @@
 #!/bin/bash -eu
 
-libDir=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
+shLibDir=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 
-. $libDir/default.sh
-. $libDir/discover.sh
-. $libDir/import.sh
-. $libDir/path.sh
-. $libDir/setup.sh
-. $libDir/mktemp.sh
-. $libDir/context.sh
+. $shLibDir/default.sh
+. $shLibDir/discover.sh
+. $shLibDir/import.sh
+. $shLibDir/path.sh
+. $shLibDir/setup.sh
+. $shLibDir/mktemp.sh
+. $shLibDir/context.sh
 
-buildImports=$libDir/../go/bin/cmd
+buildImports=$shLibDir/../../lib/import
