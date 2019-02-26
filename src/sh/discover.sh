@@ -6,7 +6,7 @@ function discoverProjectInit() {
 	    echo $searchDir/$initFileName
 	    return 0
 	fi
-	searchDir=$(dirname $searchDir)
+	searchDir=$(dirname "$searchDir")
     done
     raiseNoInitDiscovered
 }
@@ -18,12 +18,12 @@ function getRunScriptDir() {
     elif [[ -d $canonPath ]] ; then
 	echo $canonPath
     else
-	dirname $canonPath
+	dirname "$canonPath"
     fi
 }
 
 function discoverProjectDir() {
-    dirname $(discoverProjectInit)
+    dirname "$(discoverProjectInit)"
 }
 
 function raiseNoInitDiscovered() {
