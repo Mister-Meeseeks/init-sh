@@ -2,6 +2,7 @@
 package initsh
 
 import "strings"
+import "path/filepath"
 
 type cargoDeliverer struct {
 	bucket cargoBucketer
@@ -77,11 +78,19 @@ func (s symLinkSlotter) slotCargo (dest cargoAddress, originPath string) error {
 }
 
 func (s dataSlotter) slotCargo (dest cargoAddress, originPath string) error {
-	return bindCargo(makeReadBinder(originPath, "cat"), dest)
+	abs, err := filepath.Abs(originPath)
+	if err != nil {
+		return err
+	}
+	return bindCargo(makeReadBinder(abs, "cat"), dest)
 }
 
 func (s gzDataSlotter) slotCargo (dest cargoAddress, originPath string) error {
-	return bindCargo(makeReadBinder(originPath, "zcat"), dest)
+	abs, err := filepath.Abs(originPath)
+	if err != nil {
+		return err
+	}
+	return bindCargo(makeReadBinder(abs, "zcat"), dest)
 }
 
 func bindCargo (binder idempotentBinder, dest cargoAddress) error {

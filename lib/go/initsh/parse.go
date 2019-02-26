@@ -64,7 +64,7 @@ func parseImportLex (cmd importCmdLex, dir ImportDirector) (*PathIngester, error
 		return liftDir(dir.importNestSubcmd(cmd.importPath, *(cmd.namespace)))
 	case "data":
 		return liftDir(dir.importData(cmd.importPath, cmd.namespace))
-	case "dataNest":
+	case "datanest":
 		return liftDir(dir.importNestData(cmd.importPath, cmd.namespace))
 	default:
 		return nil, raiseBadCmdType(cmd)
