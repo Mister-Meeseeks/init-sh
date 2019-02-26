@@ -33,95 +33,66 @@ function addProjEtcData() {
     importDataDir $(getProjEtcDir) etc::
 }
 
-function importShellMaybe() {
-    local importDir=$1
-    shift; local addArgs=$@
-    if [[ -d $importDir ]] ; then
-	importShellDir $importDir $addArgs
-    fi
+function openUpForImports() {
+    export INIT_SH_IMPORT_DIRECTIVES=""
 }
 
 function importShellDir() {
-    set -o pipefail
-    local importDir=$1
-    [[ $# -ge 2 ]] && local namespace=$2 || local namespace=""
-    importExecutables $importDir "$namespace"
-    importShellLibs $importDir "$namespace"
+    importForType shell "$@"
 }
 
-function importExecutables() {
-    local importDir=$1
-    local namespace=$2
-    findExecutables $importDir | importBinsToProject "$namespace"
-}
-
-function importShellLibs() {
-    local importDir=$1
-    local namespace=$2
-    findShellLibs $importDir | importLibsToProject "$namespace"
+function importSubcmdDir() {
+    importForType subcmd "$@"
 }
 
 function importDataDir() {
-    local importDir=$1
-    local namespace=$2
-    findDataFiles $importDir | importDataToProject "$namespace"
+    importForType data "$@"
 }
 
-function findExecutables() {
-    local findDir=$1
-    findFilesUnderDir $findDir "-executable" ""
-}
 
-function findShellLibs() {
-    local findDir=$1
-    findFilesUnderDir $findDir "! -executable" "$shellLibPattern"
-}
-
-function findDataFiles() {
-    local findDir=$1
-    findFilesUnderDir $findDir "! -executable" ""
-}
-
-function findFilesUnderDir() {
-    local findDir=$1
-    local findArgs=$2
-    local matchPattern=$3
-    canonDir=$(expandFindDirectoryPath $findDir)
-    find $canonDir -path '*/\.*' -prune -o \
-	\( -type f -or -type l \) -and \( $findArgs \) -printf "%H %P\n" \
-	| grepMatchFiles "$matchPattern"
-}
-
-function expandFindDirectoryPath() {
-    if [[ ! -e $findDir ]] ; then
-	echo "initSh Error: Import target $findDir doesn't exist" >&2
-	exit 1
+function importForType() {
+    local directiveType=$1
+    local importDir=$2
+    local namespace=""
+    if [[ $# -ge 3 ]] ; then
+	namespace=$3
     fi
-    readlink -f $findDir
+    importDirective $directiveType $importDir $namespace
 }
 
-function grepMatchFiles() {
-    local matchPattern="$1"
-    (egrep -v "$ignoreFilePattern" \
-	    | egrep -v "$keywordFilePattern" \
-	    | egrep "$matchPattern") \
-	|| true
+function importDirective() {
+    local directive=$1
+    local importDir=$2
+    local namespace="$3"
+
+    local dirPrefix=$(formDirectivePrefix $directive "$namespace")
+    local namePostfix=$(formNamespacePostfix "$namespace")    
+    local directive=${dirPrefix}:${importDir}${namePostfix}
+    export INIT_SH_IMPORT_DIRECTIVES="$INIT_SH_IMPORT_DIRECTIVES $directive"
 }
 
-function importBinsToProject() {
-    local namespace=$1
-    $convertImportArgs "$namespace" 1 \
-	| pointInBinView
+function formDirectivePrefix() {
+    local directive=$1
+    local namespace="$2"
+    if isNestedNamespace "$namespace" ; then
+	echo $directive-nest
+    else
+	echo $directive
+    fi
 }
 
-function importLibsToProject() {
-    local namespace=$1
-    $convertImportArgs "$namespace" 0 \
-	| pointInLibView
+function formNamespacePostfix() {
+    local namespace="$1"
+    if [[ -z $namespace ]] ; then
+	echo ""
+    else
+	echo ":$namespace"
+    fi
 }
 
-function importDataToProject() {
-    local namespace=$1
-    $convertImportArgs "$namespace" 0 \
-	| pointInDataView    
+function sweepImports() {
+    $buildImports \
+	$(retrieveProjBinView) $(retrieveProjLibView) \
+	$INIT_SH_IMPORT_DIRECTIVES
+    unset $INIT_SH_IMPORT_DIRECTIVES
 }

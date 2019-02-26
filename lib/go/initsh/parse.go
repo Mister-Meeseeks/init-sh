@@ -50,21 +50,21 @@ func parseImportLex (cmd importCmdLex, dir ImportDirector) (*PathIngester, error
 	switch cmd.cmdType {
 	case "shell":
 		return liftDir(dir.importShell(cmd.importPath, cmd.namespace))
-	case "nested":
+	case "shell-nest":
 		return liftDir(dir.importNested(cmd.importPath, cmd.namespace))
 	case "subcmd":
 		if cmd.namespace == nil {
 			return nil, raiseSubcmdNamespace(cmd)
 		}
 		return liftDir(dir.importSubcmd(cmd.importPath, *(cmd.namespace)))
-	case "subnest":
+	case "subcmd-nest":
 		if cmd.namespace == nil {
 			return nil, raiseSubcmdNamespace(cmd)
 		}
 		return liftDir(dir.importNestSubcmd(cmd.importPath, *(cmd.namespace)))
 	case "data":
 		return liftDir(dir.importData(cmd.importPath, cmd.namespace))
-	case "datanest":
+	case "data-nest":
 		return liftDir(dir.importNestData(cmd.importPath, cmd.namespace))
 	default:
 		return nil, raiseBadCmdType(cmd)

@@ -8,7 +8,6 @@ initShSubDir=.initSh/
 viewSubDir=pathViews/
 viewBinSubDir=$viewSubDir/bin/
 viewLibSubDir=$viewSubDir/lib/
-viewDataSubDir=$viewSubDir/data/
 
 ignoreFilePattern='(~$|^#)'
 keywordFilePattern="(^|[/])($initFileName)\$"
