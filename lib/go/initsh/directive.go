@@ -103,7 +103,7 @@ func (d importDirector) baseBinTrans (namespace *string) AddressTranslator {
 }
 
 func (d importDirector) baseLibTrans (namespace *string) AddressTranslator {
-	return d.baseTrans(d.binPath, namespace)
+	return d.baseTrans(d.libPath, namespace)
 }
 
 func (d importDirector) baseTrans (dest string, namespace *string) AddressTranslator {
