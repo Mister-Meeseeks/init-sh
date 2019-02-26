@@ -57,7 +57,7 @@ func parseImportLex (cmd importCmdLex, dir ImportDirector) (*PathIngester, error
 			return nil, raiseSubcmdNamespace(cmd)
 		}
 		return liftDir(dir.importSubcmd(cmd.importPath, *(cmd.namespace)))
-	case "subcmdNest":
+	case "subnest":
 		if cmd.namespace == nil {
 			return nil, raiseSubcmdNamespace(cmd)
 		}
