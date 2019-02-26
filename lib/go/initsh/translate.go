@@ -62,7 +62,7 @@ type SubcmdTranslator struct {
 }
 
 func (t SubcmdTranslator) translate (origin cargoAddress) cargoAddress {
-	bucket := t.importDir + "/" + origin.bucket
+	bucket := t.importDir + "/" + t.namespace
 	slot := origin.slot
 	return cargoAddress{bucket, slot}
 }

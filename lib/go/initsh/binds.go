@@ -7,6 +7,7 @@ import "path/filepath"
 import "strings"
 import "bytes"
 import "io/ioutil"
+import "fmt"
 
 type idempotentBinder interface {
 	makeFresh (path string) error
@@ -87,7 +88,7 @@ func (b fileContentBinder) writeContent (path string) error {
 }
 
 func (b fileContentBinder) fmtContent() []byte {
-	content := strings.Join(b.contentLines, "\n")
+	content := strings.Join(b.contentLines, "\n") + "\n"
 	return []byte(content)
 }
 
