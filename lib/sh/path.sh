@@ -83,7 +83,7 @@ function retrieveProjLibView() {
 function retrieveInternalSubDir() {
     local subDir=$1
     local outDir=$INIT_SH_INSTANCE_DIR/$subDir
-    mkdir p $outDir
+    mkdir -p $outDir
     echo $outDir
 }
 

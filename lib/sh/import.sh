@@ -57,7 +57,7 @@ function importForType() {
     if [[ $# -ge 3 ]] ; then
 	namespace=$3
     fi
-    importDirective $directiveType $importDir $namespace
+    importDirective $directiveType $importDir "$namespace"
 }
 
 function importDirective() {
@@ -66,9 +66,23 @@ function importDirective() {
     local namespace="$3"
 
     local dirPrefix=$(formDirectivePrefix $directive "$namespace")
-    local namePostfix=$(formNamespacePostfix "$namespace")    
+    local namePostfix=$(formNamespacePostfix "$namespace")
+    local importAbs=$(relativeImportPath $importDir)
     local directive=${dirPrefix}:${importDir}${namePostfix}
     export INIT_SH_IMPORT_DIRECTIVES="$INIT_SH_IMPORT_DIRECTIVES $directive"
+}
+
+function relativeImportPath() {
+    local importDir=$1
+    if isAbsDir $importDir ; then
+        echo $importDir
+    else
+        echo $INIT_SH_PROJECT_CALL/$importDir
+    fi
+}
+
+function isAbsDir() {
+    echo $1 | egrep -q "^[~/]"
 }
 
 function formDirectivePrefix() {
@@ -79,6 +93,11 @@ function formDirectivePrefix() {
     else
 	echo $directive
     fi
+}
+
+function isNestedNamespace() {
+    local namespace="$1"
+    echo "$namespace" | egrep -q "^::"
 }
 
 function formNamespacePostfix() {

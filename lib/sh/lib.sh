@@ -10,4 +10,4 @@ libDir=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 . $libDir/mktemp.sh
 . $libDir/context.sh
 
-buildImports=../go/bin/cmd
+buildImports=$libDir/../go/bin/cmd
