@@ -3,7 +3,6 @@ package initsh
 
 import "strings"
 import "path/filepath"
-import "fmt"
 
 type AddressTranslator interface {
 	translate (origin cargoAddress) cargoAddress
@@ -75,7 +74,6 @@ type NamespaceTranslator struct {
 }
 
 func (p NamespaceTranslator) translate (origin cargoAddress) cargoAddress {
-	fmt.Println("Hello")
 	slot := p.namespace + p.div + origin.slot
 	return cargoAddress{p.importDir, slot}
 }
