@@ -4,3 +4,4 @@ tmp*
 .initSh
 *.lock
 .goto/
+lib/
