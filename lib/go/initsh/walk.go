@@ -11,7 +11,15 @@ func WalkThru (importArg string, dir ImportDirector) error {
 	if (err != nil) {
 		return err
 	}
-	return walkIngest(root, *ing)
+	return filterWalkErrs(walkIngest(root, *ing))
+}
+
+func filterWalkErrs (err error) error {
+	if (err == filepath.SkipDir) {
+		return nil
+	} else {
+		return err
+	}
 }
 
 func walkIngest (root string, hndl PathIngester) error {
