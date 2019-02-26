@@ -14,7 +14,7 @@ type idempotentBinder interface {
 }
 
 func bindTo (b idempotentBinder, path string) error {
-	s, err := os.Stat(path)
+	s, err := os.Lstat(path)
 	if os.IsNotExist(err) {
 		return b.makeFresh(path)
 	} else if err != nil {
@@ -33,23 +33,32 @@ func (b linkBinder) makeFresh (path string) error {
 	if (err != nil) {
 		return err
 	}
-	return os.Symlink(path, b.tgtPath)
+	abs, err := filepath.Abs(b.tgtPath)
+	if (err != nil) {
+		return err
+	}
+	return os.Symlink(abs, path)
 }
 
 func (b linkBinder) assertMatch (path string, stat os.FileInfo) error {
 	if (isSymLink(stat.Mode())) {
-		prePath, err := filepath.EvalSymlinks(path)
-		if err != nil {
-			return err
-		}
-		if prePath != b.tgtPath {
-			return raiseLinkConflict(path, b.tgtPath, prePath)
-		}
-		return nil
+		return b.assertMatchLink(path)
 	} else {
 		return errors.New("Cannot symLink at " + path +
 			". Previous non-link file exists.")
 	}
+}
+
+func (b linkBinder) assertMatchLink (path string) error {
+	prePath, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return err
+	}
+	absPath, err := filepath.Abs(b.tgtPath)
+	if prePath != absPath {
+		return raiseLinkConflict(path, b.tgtPath, prePath)
+	}
+	return nil
 }
 
 

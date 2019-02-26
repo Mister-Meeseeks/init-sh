@@ -13,7 +13,7 @@ func main() {
 	for _, directive :=  range directs {
 		err := initsh.WalkThru(directive, importer)
 		if err != nil {
-			log.Fatal("Error on parse=" + directive, err)
+			log.Fatal("Error on Directive (\"" + directive +"\"): ", err)
 		}
 	}
 }
