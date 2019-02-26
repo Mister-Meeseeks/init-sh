@@ -33,6 +33,7 @@ function raiseNoInitDiscovered() {
 }
 
 function blueprintProject() {
+    openUpForImports
     addLocalProject
     sourceLocalProjectInit
 }

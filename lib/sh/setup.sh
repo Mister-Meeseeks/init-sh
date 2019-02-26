@@ -7,6 +7,7 @@ function setupLocalProject() {
 function initializeLocalProject() {
     prepareFreshView
     blueprintProject
+    sweepImports
 }
 
 function runForInitShCall() {
