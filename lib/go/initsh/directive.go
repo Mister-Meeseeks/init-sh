@@ -55,27 +55,22 @@ func (d importDirector) importNestData (path string, namespace *string) PathInge
 func (d importDirector) importSubcmd (path string, namespace string) PathIngester {
 	ex := ImportFunnel{ExecFilter{}, d.subcmdFlatBinTrans(namespace),
 		d.subcmdShipper(), path}
-	lib := ImportFunnel{ShellLibFilter{}, d.subcmdFlatLibTrans(namespace),
-		d.subcmdShipper(), path}
+	lib := ImportFunnel{ShellLibFilter{}, d.flatLibTrans(&namespace),
+		d.linkPathShipper(), path}
 	return mergeIngesters(ex, lib)
 }
 
 func (d importDirector) importNestSubcmd (path string, namespace string) PathIngester {
 	ex := ImportFunnel{ExecFilter{}, SubcmdTranslator{namespace, d.binPath},
 		d.subcmdShipper(), path}
-	lib := ImportFunnel{ShellLibFilter{}, SubcmdTranslator{namespace, d.libPath},
-		d.subcmdShipper(), path}
+	lib := ImportFunnel{ShellLibFilter{}, d.nestLibTrans(&namespace),
+		d.linkPathShipper(), path}	
 	return mergeIngesters(ex, lib)
 }
 
 func (d importDirector) subcmdFlatBinTrans (namespace string) AddressTranslator {
 	return stackTrans(FlattenTranslator{"/"},
 		SubcmdTranslator{namespace, d.binPath})
-}
-
-func (d importDirector) subcmdFlatLibTrans (namespace string) AddressTranslator {
-	return stackTrans(FlattenTranslator{"/"},
-		SubcmdTranslator{namespace, d.libPath})
 }
 
 func (d importDirector) subcmdBinTrans (namespace string) AddressTranslator {
