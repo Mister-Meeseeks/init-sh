@@ -60,7 +60,7 @@ type subcmdSlotter struct {
 
 func (s subcmdSlotter) slotCargo (dest cargoAddress, originPath string) error {
 	fileDest := cargoAddress{toSubcmdTreeDir(dest.bucket), dest.slot}
-	return s.slotCargo(fileDest, originPath)
+	return bindCargo(makeSubcmdBinder(), fileDest)
 }
 
 func toSubcmdTreeDir (entryPath string) string {

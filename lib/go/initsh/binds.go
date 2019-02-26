@@ -7,7 +7,6 @@ import "path/filepath"
 import "strings"
 import "bytes"
 import "io/ioutil"
-import "fmt"
 
 type idempotentBinder interface {
 	makeFresh (path string) error
@@ -111,7 +110,7 @@ func (b fileContentBinder) assertFileMatch (path string) error {
 	}
 	if (!(bytes.Equal(byteContent, b.fmtContent()))) {
 		return errors.New("Read wrapper previosuly exists at " + path +
-			"with different content")
+			" with different content")
 	}
 	return nil
 }
