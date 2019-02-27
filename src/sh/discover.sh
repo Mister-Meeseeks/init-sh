@@ -6,7 +6,7 @@ function discoverProjectInit() {
 	    echo $searchDir/$initFileName
 	    return 0
 	fi
-	searchDir=$(dirname $searchDir)
+	searchDir=$(dirname "$searchDir")
     done
     raiseNoInitDiscovered
 }
@@ -18,18 +18,24 @@ function getRunScriptDir() {
     elif [[ -d $canonPath ]] ; then
 	echo $canonPath
     else
-	dirname $canonPath
+	dirname "$canonPath"
     fi
 }
 
 function discoverProjectDir() {
-    dirname $(discoverProjectInit)
+    dirname "$(discoverProjectInit)"
 }
 
 function raiseNoInitDiscovered() {
     echo "init.sh Error: init.sh not found in any parent directory" \
 	"for $runScript. Cannot determine project location" >&2
     exit 1
+}
+
+function blueprintProject() {
+    openUpForImports
+    addLocalProject
+    sourceLocalProjectInit
 }
 
 function addLocalProject() {

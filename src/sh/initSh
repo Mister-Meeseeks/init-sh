@@ -7,6 +7,10 @@ runScript=$1
 binDir=$(dirname $(readlink -f $0))
 . $binDir/lib.sh
 
+if $binDir/trapHelpCmd $runScript ; then
+    exit 0
+fi
+
 # Default cleanup both on success and failure, but if INIT_SH_DEBUG is set,
 # then keep temp files on failure for traceability. 
 trap cleanupLocalProject EXIT

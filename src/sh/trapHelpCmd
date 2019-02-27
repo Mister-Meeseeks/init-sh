@@ -1,0 +1,56 @@
+#!/bin/bash -eu
+
+if [[ $# -gt 0 ]] ; then
+    cmd=$1
+else
+    cmd=""
+fi
+
+function helpMsg() {
+    cat <<EOF
+initSh
+
+Framework for multi-file shell proejcts with automatic path awareness and 
+namespaced imports.
+
+Usage:
+
+    initSh SCRIPT [ARGS]
+
+Description:
+
+    SCRIPT   - Path to any script in an initSh project directory tree.
+
+    ARGS     - Any command line arguments to pass to script
+
+EOF
+    >&2
+}
+
+function helpCmds() {
+    cat <<EOF
+HELP
+help
+-h
+--help
+--HELP
+--Help
+-help
+-HELP
+-Help
+--h
+--version
+-v
+-version
+EOF
+}
+
+function isHelpMsg() {
+    helpCmds | egrep -q "^$cmd$"
+}
+
+if isHelpMsg ; then
+    helpMsg
+    exit 0
+fi
+exit 1
