@@ -28,7 +28,7 @@ install: $(shebangs)
 $(sysBinDir)%: $(binPath)%
 	test -e $@ && rm $@ || true
 	test -L $@ && unlink $@ || true
-	echo ln -s ${CURDIR}/$< $@
+	ln -s ${CURDIR}/$< $@
 
 clean:
 	rm -r $(libPath)
