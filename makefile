@@ -27,10 +27,13 @@ $(libPath):
 
 install: $(shebangs)
 
-$(sysBinDir)%: $(binPath)%
+$(sysBinDir)%: $(binPath)% $(sysBinDir)
 	test -e $@ && rm $@ || true
 	test -L $@ && unlink $@ || true
 	ln -s ${CURDIR}/$< $@
+
+$(sysBinDir):
+	mkdir -p $(sysBinDir)
 
 clean:
 	rm -r $(libPath)
