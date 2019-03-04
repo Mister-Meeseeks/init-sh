@@ -24,17 +24,29 @@ func filterWalkErrs (err error) error {
 
 func walkIngest (root string, hndl PathIngester) error {
 	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
+		if (err != nil) {
 			return err
 		} else if isIgnorable (path) {
 			return filepath.SkipDir
 		} else {
-			return hndl.ingestPath(path, info)
+			return ingestWalk(path, hndl)
 		}
 	})
 }
 
+func ingestWalk (path string, hndl PathIngester) error {
+	linkInfo, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+	return hndl.ingestPath(path, linkInfo)
+}
+
 func isIgnorable (path string) bool {
+	return isBrokenLink(path) || isIgnorableName(path)
+}
+
+func isIgnorableName (path string) bool {
 	base := filepath.Base(path)
 	return isHiddenBase(base) || isScratchBase(base)
 }

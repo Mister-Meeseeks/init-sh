@@ -1,6 +1,7 @@
 package initsh
 
 import "os"
+import "path/filepath"
 
 func isExecPerm (mode os.FileMode) bool {
 	return mode.Perm() & 0100 > 0
@@ -8,6 +9,11 @@ func isExecPerm (mode os.FileMode) bool {
 
 func isSymLink (mode os.FileMode) bool {
 	return mode & os.ModeSymlink > 0
+}
+
+func isBrokenLink (path string) bool {
+	_, err := filepath.EvalSymlinks(path)
+	return err != nil
 }
 
 func isExecFile (info os.FileInfo) bool {
