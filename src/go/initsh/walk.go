@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"fmt"
 )
 
 func WalkThru (importArg string, dir ImportDirector) error {
@@ -24,14 +25,25 @@ func filterWalkErrs (err error) error {
 
 func walkIngest (root string, hndl PathIngester) error {
 	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		fmt.Println(path)
 		if (err != nil) {
 			return err
 		} else if isIgnorable (path) {
-			return filepath.SkipDir
+			return ignoreWalk(info)
 		} else {
 			return ingestWalk(path, hndl)
 		}
 	})
+}
+
+func ignoreWalk (info os.FileInfo) error {
+	if isSymLink(info.Mode()) {
+		return nil
+	} else if (info.IsDir()) {
+		return filepath.SkipDir
+	} else {
+		return nil
+	}
 }
 
 func ingestWalk (path string, hndl PathIngester) error {
