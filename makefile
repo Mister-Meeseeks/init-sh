@@ -6,18 +6,20 @@ SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 libPath = $(SELF_DIR)lib/
 importBin = $(libPath)import
 shPath = $(SELF_DIR)src/sh/
-goCmdDir = $(SELF_DIR)src/go/initsh/cmd/
+goSrcDir = $(SELF_DIR)src/go/initsh/
+goCmdDir = $(goSrcDir)cmd/
 binPath = $(SELF_DIR)/bin/
 
+repoGoSrcs = $(wildcard $(goSrcDir)*.go $(goCmdDir)*.go)
 repoBins = $(wildcard $(binPath)*)
-repoShells = $(wildcare $(shPath)*)
+repoShells = $(wildcard $(shPath)*)
 
 sysBinDir = $(PREFIX)bin/
 shebangs = $(patsubst $(binPath)%,$(sysBinDir)%,$(repoBins))
 
 .PHONY: clean install
 
-$(importBin): $(libPath) $(goCmdDir)
+$(importBin): $(libPath) $(goCmdDir) $(repoGoSrcs)
 	goto -o $(importBin) $(goCmdDir)
 
 $(libPath):
