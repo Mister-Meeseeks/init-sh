@@ -69,7 +69,7 @@ function rmLocalProject() {
 function notifyDebugTrace() {
     if isTopLevelInitShCall; then
 	echo "init.sh debugging: Retaining local inst at $INIT_SH_INSTANCE_DIR.\
-(Unset INIT_SH_CLEANUP to disable behavior)" >&2
+(Unset INIT_SH_DEBUG to disable behavior)" >&2
     fi
 }
 
