@@ -33,11 +33,27 @@ func (b linkBinder) makeFresh (path string) error {
 	if (err != nil) {
 		return err
 	}
-	abs, err := filepath.Abs(b.tgtPath)
+	abs, err := resolveLinkTarget(b.tgtPath)
 	if (err != nil) {
 		return err
 	}
 	return os.Symlink(abs, path)
+}
+
+func resolveLinkTarget (path string) (string, error) {
+	linked, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Abs(linked)
+}
+
+func raiseMissingLinkTarget (path string) error {
+	return errors.New("initSh Error: Bad link target does not exist " + path)
+}
+
+func raiseBrokenLinkTarget (path string) error {
+	return errors.New("initSh Error: Bad link target. Symlink broken " + path)
 }
 
 func (b linkBinder) assertMatch (path string, stat os.FileInfo) error {
@@ -54,13 +70,15 @@ func (b linkBinder) assertMatchLink (path string) error {
 	if err != nil {
 		return err
 	}
-	absPath, err := filepath.Abs(b.tgtPath)
+	absPath, err := resolveLinkTarget(b.tgtPath)
+	if err != nil {
+		return err
+	}
 	if prePath != absPath {
 		return raiseLinkConflict(path, b.tgtPath, prePath)
 	}
 	return nil
 }
-
 
 func raiseLinkConflict (link string, tgt string, pre string) error {
 	msg := "initSh Error: Name conflict when creating link=" +

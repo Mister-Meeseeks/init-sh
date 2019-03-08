@@ -58,7 +58,11 @@ func isIgnorable (path string) bool {
 
 func isIgnorableName (path string) bool {
 	base := filepath.Base(path)
-	return isHiddenBase(base) || isScratchBase(base)
+	return isHiddenBase(base) || isScratchBase(base) || isInitShConfig(base)
+}
+
+func isInitShConfig (base string) bool {
+	return base == "init.sh"
 }
 
 func isHiddenBase (path string) bool {

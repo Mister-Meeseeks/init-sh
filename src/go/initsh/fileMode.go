@@ -11,6 +11,11 @@ func isSymLink (mode os.FileMode) bool {
 	return mode & os.ModeSymlink > 0
 }
 
+func doesPathExist (path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
 func isBrokenLink (path string) bool {
 	_, err := filepath.EvalSymlinks(path)
 	return err != nil
