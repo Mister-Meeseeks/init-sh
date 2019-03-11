@@ -26,7 +26,7 @@ trap cleanupArgMod EXIT
 # All CLI vars assigned to string as value type
 for varAssign in $cliAssigns ; do
     varName=$(echo "$varAssign" | cut -d "=" -f 1)
-    varVal=$(echo "$varAssign" | cut -d "=" -f 2)
+    varVal=$(echo "$varAssign" | cut -d "=" -f 2-)
     echo "@${varName} = '$varVal'" >> $rubyCliArgMod
 done
 
