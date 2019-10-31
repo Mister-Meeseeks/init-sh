@@ -1,0 +1,11 @@
+#!/bin/bash -eu
+
+runScript=$1
+shift
+
+shebangDir=$(dirname $(readlink -f $0))
+initSh=$shebangDir/initSh
+declSh=$shebangDir/../src/sh/decl/shell
+
+export runShell=$declSh
+initSh $runScript "$@"

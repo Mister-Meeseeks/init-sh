@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname $(readlink -f $0))
+
+buffer=$(mkTempInitSh)
+wrapper=$(mkTempInitSh)
+inner=$(mkTempInitSh)
+
+cat $1 > $buffer;
+shift
+
+$scriptDir/section $wrapper $inner <$buffer
+
+chmod u+x $wrapper
+cat $inner | $wrapper $@
+
+

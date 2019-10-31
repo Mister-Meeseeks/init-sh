@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+
+import sys
+
+outer_path = sys.argv[1]
+inner_path = sys.argv[2]
+
+DECL_SHEBANG_MARKER = ">>>"
+EXEC_SHEBANG_MARKER = "#!"
+BODY_SPLITTER = "---"
+
+class Sectioner:
+    def __init__ (self):
+        self.shebang = None
+        self.headers = []
+        self.body = []
+        self._inHeader = True
+        
+    def push (self, line):
+        if (self._isShebang(line)):
+            self._setShebang(line)
+        elif (self._isExecSh(line)):
+            pass
+        elif (self._isBodySplit(line)):
+            self._inHeader = False
+        else:
+            self._pushBand(line)
+
+    @staticmethod
+    def _isShebang (line):
+        return line.startswith(DECL_SHEBANG_MARKER)
+
+    @staticmethod
+    def _isExecSh (line):
+        return line.startswith(EXEC_SHEBANG_MARKER)
+    
+    def _setShebang (self, line):
+        shebang = self._stripShebang(line)
+        if (self.shebang is not None):
+            raise Exception("Multiple initDecl shebangs set: %s %s" %
+                            (self.shebang, shebang))
+        self.shebang = shebang
+
+    @staticmethod
+    def _stripShebang (line):
+        return line[len(DECL_SHEBANG_MARKER):].lstrip()
+        
+    @staticmethod
+    def _isBodySplit (line):
+        return line.startswith(BODY_SPLITTER)
+
+    def _pushBand (self, line):
+        if (self._inHeader):
+            self.headers.append(line)
+        else:
+            self.body.append(line)
+
+    def hasBody (self):
+        return not self._inHeader 
+
+    
+def outer (sect: Sectioner):
+    if (sec.shebang is None):
+        raise Exception("Error: No shebang line set. (Use `%s [cmd]`)" %
+                        DECL_SHEBANG_MARKER)
+    return sect.headers + [sec.shebang]
+
+def inner (sec: Sectioner):
+    if (not sec.hasBody()):
+        raise Exception("Error: No body lines defined. (Use `%s` line to split)"
+                        % BODY_SPLITTER)
+    return sec.body
+
+
+sec = Sectioner()
+for line in sys.stdin:
+    sec.push(line)
+
+output = open(inner_path, 'w')
+for line in inner(sec):
+    output.write(line)
+
+output = open(outer_path, 'w')
+for line in outer(sec):
+    output.write(line)
+
+    
