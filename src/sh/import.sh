@@ -37,6 +37,13 @@ function openUpForImports() {
     export INIT_SH_IMPORT_DIRECTIVES=""
 }
 
+function importShellTry() {
+    local importDir=$1
+    if [[ -d $importDir ]] ; then
+        importShellDir "$@"
+    fi
+}
+
 function importShellDir() {
     importForType shell "$@"
 }
