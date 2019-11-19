@@ -38,7 +38,7 @@ function hasInitShBeenCalledHere() {
 function pushNewInitShProjectCall() {
     local initCmd=$1
     estabilishStackForTopInitShCall
-    tagCallSite
+    tagInitShCallSite
     $initCmd
 }
 
@@ -49,13 +49,24 @@ function estabilishStackForTopInitShCall() {
 }
 
 function pushSubroutineInitShCall() {
+    pushInitShCallStack
+    tagInitShSubSite
+}
+
+function pushInitShCallStack() {
     export INIT_SH_CALL_STACK_LEVEL=$(($INIT_SH_CALL_STACK_LEVEL + 1))
 }
 
-function tagCallSite() {
+function tagInitShCallSite() {
     export INIT_SH_CALL_SITE=$runScript
     export INIT_SH_CALL_PATH=$(readlink -f $runScript)
     export INIT_SH_CALL_DIR=$(getRunScriptDir)
+}
+
+function tagInitShSubSite() {
+    export INIT_SH_SUB_SITE=$runScript
+    export INIT_SH_SUB_PATH=$(readlink -f $runScript)
+    export INIT_SH_SUB_DIR=$(getRunScriptDir)
 }
 
 function cleanupLocalProject() {
