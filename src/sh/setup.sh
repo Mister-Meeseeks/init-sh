@@ -18,6 +18,7 @@ function runForInitShCall() {
 
 function runForInitShCallSafeVar() {
     local initCmd=$*
+    tagCallSite
     if hasInitShBeenCalledHere ; then
 	pushNewInitShProjectCall $initCmd
     else
@@ -49,6 +50,12 @@ function estabilishStackForTopInitShCall() {
 
 function pushSubroutineInitShCall() {
     export INIT_SH_CALL_STACK_LEVEL=$(($INIT_SH_CALL_STACK_LEVEL + 1))
+}
+
+function tagCallSite() {
+    export INIT_SH_CALL_SITE=$runScript
+    export INIT_SH_CALL_PATH=$(readlink -f $runScript)
+    export INIT_SH_CALL_DIR=$(getRunScriptDir)
 }
 
 function cleanupLocalProject() {
