@@ -18,7 +18,6 @@ function runForInitShCall() {
 
 function runForInitShCallSafeVar() {
     local initCmd=$*
-    tagCallSite
     if hasInitShBeenCalledHere ; then
 	pushNewInitShProjectCall $initCmd
     else
@@ -39,6 +38,7 @@ function hasInitShBeenCalledHere() {
 function pushNewInitShProjectCall() {
     local initCmd=$1
     estabilishStackForTopInitShCall
+    tagCallSite
     $initCmd
 }
 
