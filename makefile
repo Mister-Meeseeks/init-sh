@@ -4,7 +4,7 @@ PREFIX = /usr/local/
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 libPath = $(SELF_DIR)lib/
-importBin = $(libPath)import
+importBin = $(abspath $(libPath)import)
 shPath = $(SELF_DIR)src/sh/
 goSrcDir = $(SELF_DIR)src/go/initsh/
 goCmdDir = $(goSrcDir)cmd/
@@ -20,7 +20,7 @@ shebangs = $(patsubst $(binPath)%,$(sysBinDir)%,$(repoBins))
 .PHONY: clean install
 
 $(importBin): $(libPath) $(goCmdDir) $(repoGoSrcs)
-	goto -o $(importBin) $(goCmdDir)
+	cd $(goCmdDir) && go build -o $(importBin)
 
 $(libPath):
 	mkdir -p $(libPath)
