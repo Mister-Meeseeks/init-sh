@@ -122,3 +122,13 @@ function sweepImports() {
 	$INIT_SH_IMPORT_DIRECTIVES
     unset INIT_SH_IMPORT_DIRECTIVES
 }
+
+function walkImports() {
+    find $(extractPureDirs) -name ".*" -prune -o -print
+}
+
+function extractPureDirs() {
+    echo $INIT_SH_IMPORT_DIRECTIVES \
+        | sed 's+ +\n+' \
+        | cut -d : -f 2
+}
