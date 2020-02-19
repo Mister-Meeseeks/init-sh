@@ -14,6 +14,14 @@ func WalkThru (importArg string, dir ImportDirector) error {
 	return filterWalkErrs(walkIngest(root, *ing))
 }
 
+func WalkPreScanned (importArg string, dir ImportDirector, paths []string) error {
+	ing, root, err := parseImportStr(importArg, dir)
+	if (err != nil) {
+		return err
+	}
+	return filterWalkErrs(preScanIngest(root, *ing, paths))
+}
+
 func filterWalkErrs (err error) error {
 	if (err == filepath.SkipDir) {
 		return nil
@@ -32,6 +40,26 @@ func walkIngest (root string, hndl PathIngester) error {
 			return ingestWalk(path, hndl)
 		}
 	})
+}
+
+func preScanIngest (root string, hndl PathIngester, paths []string) error {
+	for _, path := range paths {
+		if (strings.HasPrefix(path, root)) {
+			err := preScanSelect(path, hndl)
+			if (err != nil) {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func preScanSelect (path string, hndl PathIngester) error {
+	if (isIgnorable(path)) {
+		return nil
+	} else {
+		return ingestWalk(path, hndl)
+	}
 }
 
 func ignoreWalk (info os.FileInfo) error {

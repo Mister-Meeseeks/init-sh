@@ -117,9 +117,10 @@ function formNamespacePostfix() {
 }
 
 function sweepImports() {
-    $buildImports \
-	$(retrieveProjBinView) $(retrieveProjLibView) \
-	$INIT_SH_IMPORT_DIRECTIVES
+    walkImports \
+        | $buildImports \
+	      $(retrieveProjBinView) $(retrieveProjLibView) \
+	      $INIT_SH_IMPORT_DIRECTIVES
     unset INIT_SH_IMPORT_DIRECTIVES
 }
 
