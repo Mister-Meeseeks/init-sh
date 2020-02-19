@@ -45,6 +45,7 @@ function pushNewInitShProjectCall() {
 function estabilishStackForTopInitShCall() {
     export INIT_SH_PROJECT_CALL=$(discoverProjectDir) 
     export INIT_SH_INSTANCE_DIR=$(randomizeInstanceDir)
+    export INIT_SH_IMPORT_DIR=$(hashImportDir)
     export INIT_SH_CALL_STACK_LEVEL=0
 }
 
@@ -95,6 +96,6 @@ function isTopLevelInitShCall() {
     [[ $INIT_SH_CALL_STACK_LEVEL -eq 0 ]]
 }
 
-function nukeAllInstances() {
-    rm -rf $(retrieveInstanceParent)
+function nukeRuntime() {
+    rm -rf $(retrieveRuntimeDir)
 }

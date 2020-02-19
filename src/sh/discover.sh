@@ -47,13 +47,27 @@ function sourceLocalProjectInit() {
 }
 
 function randomizeInstanceDir() {
-    local instParentDir=$(retrieveInstanceParent)
+    local instParent=$(retrieveRuntimeDir)/instances/
     local randTemplate=tmpInst.XXXXXXXX
-    mktemp -d $instParentDir/$randTemplate
+    mkdir -p $instParent
+    mktemp -d $instParent/$randTemplate
 }
 
-function retrieveInstanceParent() {
-    local instParentDir=$(discoverProjectDir)/$initShSubDir/
-    mkdir -p $instParentDir
-    echo $instParentDir
+function hashImportDir() {
+    local importParent=$(retrieveRuntimeDir)/imports/
+    local projHash=$(hashProjectPath)
+    mkdir -p $importParent/$projHash
+    echo $importParent/$projHash
+}
+
+function hashProjectPath() {
+    path=$(readlink -f $(discoverProjectDir))
+    # 128 bits of entropy oughta be enough for anybody...
+    echo $path | sha256sum | cut -b 1-32
+}
+
+function retrieveRuntimeDir() {
+    local instParent=$(discoverProjectDir)/$initShSubDir/
+    mkdir -p $instParent
+    echo $instParent
 }

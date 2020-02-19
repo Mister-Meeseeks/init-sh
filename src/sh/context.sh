@@ -15,6 +15,7 @@
 function dropInitShCall() {
     unset INIT_SH_PROJECT_CALL
     unset INIT_SH_INSTANCE_DIR
+    unset INIT_SH_IMPORT_DIR
     unset INIT_SH_CALL_STACK_LEVEL
 }
 
