@@ -130,6 +130,6 @@ function walkImports() {
 
 function extractPureDirs() {
     echo $INIT_SH_IMPORT_DIRECTIVES \
-        | sed 's+ +\n+' \
+        | sed 's+ +\n+g' \
         | cut -d : -f 2
 }
