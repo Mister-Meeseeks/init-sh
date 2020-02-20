@@ -126,11 +126,12 @@ func writeEntry (path string, entry DigestEntry) error {
 }
 
 func writeOn (writer *bufio.Writer, entry DigestEntry) error {
-	_, err := writer.WriteString(entry.spaceName)
+	_, err := writer.WriteString(entry.spaceName + "\n")
 	if (err != nil) {
 		return err
 	}
-	_, err = writer.WriteString(entry.checkSum)
+	_, err = writer.WriteString(entry.checkSum + "\n")
+	writer.Flush()
 	return err
 }
 
