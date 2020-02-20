@@ -1,6 +1,4 @@
 
-doesProjectHavePrecedence=1
-
 rootDir=/
 initFileName=init.sh
 
