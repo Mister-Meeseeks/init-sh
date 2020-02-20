@@ -117,11 +117,16 @@ function formNamespacePostfix() {
 }
 
 function sweepImports() {
+    spaces=$(layoutImportSpace)
+    export PATH="$PATH:$spaces"
+}
+
+function layoutImportSpace() {
     walkImports \
         | $buildImports \
 	      $INIT_SH_IMPORT_DIR \
 	      $INIT_SH_IMPORT_DIRECTIVES \
-        | attachPaths
+        | paste -d ':' -s
     unset INIT_SH_IMPORT_DIRECTIVES
 }
 
@@ -133,14 +138,4 @@ function extractPureDirs() {
     echo $INIT_SH_IMPORT_DIRECTIVES \
         | sed 's+ +\n+g' \
         | cut -d : -f 2
-}
-
-function attachPaths() {
-    local workPaths=$(cat - | paste -d ':' -s)
-    appendPathEnv $workPaths
-}
-
-function appendPathEnv() {
-    local workPaths=$1
-    export PATH="$PATH:$workPaths"
 }
