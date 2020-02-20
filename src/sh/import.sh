@@ -119,7 +119,7 @@ function formNamespacePostfix() {
 function sweepImports() {
     walkImports \
         | $buildImports \
-	      $(retrieveProjBinView) $(retrieveProjLibView) \
+	      $INIT_SH_IMPORT_DIR \
 	      $INIT_SH_IMPORT_DIRECTIVES
     unset INIT_SH_IMPORT_DIRECTIVES
 }

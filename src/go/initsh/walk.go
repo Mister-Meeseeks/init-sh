@@ -43,15 +43,33 @@ func walkIngest (root string, hndl PathIngester) error {
 }
 
 func preScanIngest (root string, hndl PathIngester, paths []string) error {
-	for _, path := range paths {
-		if (strings.HasPrefix(path, root)) {
-			err := preScanSelect(path, hndl)
-			if (err != nil) {
-				return err
-			}
+	for _, path := range filterImportRoot(root, paths) {
+		err := preScanSelect(path, hndl)
+		if (err != nil) {
+			return err
 		}
 	}
 	return nil
+}
+
+func filterImportRoot (importRoot string, pathUniv []string) []string {
+	var paths []string
+	for _, path := range pathUniv {
+		if (strings.HasPrefix(path, importRoot)) {
+			paths = append(paths, path)
+		}
+	}
+	return paths
+	
+}
+
+func FilterImportDirective (importArg string, pathUniv []string) ([]string, error) {
+	lex, err := lexImportStr(importArg)
+	root := lex.importPath
+	if (err != nil) {
+		return make([]string, 0), err
+	}
+	return filterImportRoot(root, pathUniv), nil
 }
 
 func preScanSelect (path string, hndl PathIngester) error {

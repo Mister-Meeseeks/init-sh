@@ -29,7 +29,7 @@ func mergeIngesters (x PathIngester, y PathIngester) PathIngester {
 type PathPrinter struct { }
 
 func (p PathPrinter) ingestPath (path string, info os.FileInfo) error {
-	fmt.Printf("Descent path %q - base %q - isDir= %q - Mode %o\n",
+	fmt.Printf("Descent path %q - base %q - isDir= %t - Mode %o\n",
 		path, info.Name(), info.IsDir(), info.Mode().Perm())
 	return nil
 }
