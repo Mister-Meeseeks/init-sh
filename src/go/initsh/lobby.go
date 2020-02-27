@@ -95,7 +95,7 @@ func formDigestPath (importDir string, digestKey string) string {
 
 func mkdirIdempot (path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return os.Mkdir(path, os.ModeDir)
+		return os.Mkdir(path, 0755)
 	} else {
 		return nil
 	}
