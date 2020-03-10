@@ -122,7 +122,7 @@ function formNamespacePostfix() {
 # the scripts of the outer calling project.
 function sweepImports() {
     spaces=$(layoutImportSpace)
-    export PATH="$spaces:PATH"
+    export PATH="$spaces:$PATH"
 }
 
 function layoutImportSpace() {
