@@ -116,9 +116,13 @@ function formNamespacePostfix() {
     fi
 }
 
+# Imported space takes precedent over pre-existing path. This is very important
+# in nested init.sh calls across projects. Without it internal name scoping
+# would not be respected. Otheriwse an inner project might inadvertantly call
+# the scripts of the outer calling project.
 function sweepImports() {
     spaces=$(layoutImportSpace)
-    export PATH="$PATH:$spaces"
+    export PATH="$spaces:PATH"
 }
 
 function layoutImportSpace() {
